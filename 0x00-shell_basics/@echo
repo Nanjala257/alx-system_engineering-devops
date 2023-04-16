@@ -1,0 +1,27 @@
+#!/bin/bash
+@echo off
+
+setlocal enabledelayedexpansion
+
+set "cwd=%cd%"
+for %%i in (%cwd%\*.html) do (
+  set "src_path=%%i"
+  set "dest_path=..\%%~nxi"
+  if not exist "!dest_path!" (
+    copy "!src_path!" "!dest_path!"
+    echo File !src_path! copied successfully.
+  ) else (
+    for /f "usebackq" %%j in (`dir /b /a-d "!dest_path!"`) do (
+      set "dest_mtime=%%~tj"
+    )
+    for /f "usebackq" %%j in (`dir /b /a-d "!src_path!"`) do (
+      set "src_mtime=%%~tj"
+    )
+    set "dest_mtime=!dest_mtime: =0!"
+    set "src_mtime=!src_mtime: =0!"
+    if !src_mtime! gtr !dest_mtime! (
+      copy /b /y "!src_path!" "!dest_path!"
+      echo File !src_path! copied successfully.
+    )
+  )
+)
